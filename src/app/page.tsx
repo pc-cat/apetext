@@ -233,7 +233,8 @@ export default function Home() {
               borderColor: 'var(--ape-border-kbd)',
             }}
           >
-            My Notes
+            <span className="sm:hidden">Notes</span>
+            <span className="hidden sm:inline">My Notes</span>
           </Link>
         </div>
       </header>
