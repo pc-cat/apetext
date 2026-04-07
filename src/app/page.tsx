@@ -284,7 +284,7 @@ export default function Home() {
               </div>
 
               {/* Action buttons */}
-              <div className="flex w-full justify-center items-center gap-4 z-10 mb-8 mt-4">
+              <div className="hidden sm:flex w-full justify-center items-center gap-4 z-10 mb-8 mt-4">
                 {/* Restart */}
                 <button
                   onClick={handleRestart}
