@@ -265,7 +265,7 @@ export default function Home() {
                   style={{ borderColor: 'var(--ape-border)' }}
                 >
                   {[
-                    { label: 'raw',         value: String(finalStats.raw) },
+                    { label: 'raw',         value: String(finalStats.raw),  mobileHidden: true },
                     { label: 'chars',       value: String(finalStats.chars) },
                     { label: 'consistency', value: `${finalStats.consistency}%`, mobileHidden: true },
                     { label: 'time',        value: `${finalStats.time}s` },
@@ -283,7 +283,7 @@ export default function Home() {
                 {/* Restart */}
                 <button
                   onClick={handleRestart}
-                  className="group relative px-10 py-3 backdrop-blur-sm transition-all duration-300 rounded-xl overflow-hidden font-sans uppercase tracking-widest text-xs font-semibold shadow-xl hover:-translate-y-1 flex items-center justify-center"
+                  className="group relative px-5 sm:px-10 py-3 backdrop-blur-sm transition-all duration-300 rounded-xl overflow-hidden font-sans uppercase tracking-widest text-xs font-semibold shadow-xl hover:-translate-y-1 flex items-center justify-center whitespace-nowrap"
                   style={{
                     background: 'var(--ape-bg-card)',
                     color: 'var(--ape-text)',
@@ -305,7 +305,7 @@ export default function Home() {
                 {/* View Notes */}
                 <Link
                   href="/dashboard"
-                  className="group relative px-10 py-3 backdrop-blur-sm transition-all duration-300 rounded-xl overflow-hidden font-sans uppercase tracking-widest text-xs font-semibold shadow-xl hover:-translate-y-1 flex items-center justify-center"
+                  className="group relative px-5 sm:px-10 py-3 backdrop-blur-sm transition-all duration-300 rounded-xl overflow-hidden font-sans uppercase tracking-widest text-xs font-semibold shadow-xl hover:-translate-y-1 flex items-center justify-center whitespace-nowrap"
                   style={{
                     background: 'var(--ape-bg-card)',
                     color: 'var(--ape-text)',
