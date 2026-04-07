@@ -5,7 +5,7 @@ import TypingChart from '@/components/analytics/TypingChart';
 import ApeLogo from '@/components/ui/ApeLogo';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { useTheme } from '@/components/ui/ThemeProvider';
-import { Clock } from 'lucide-react';
+import { Clock, RotateCcw, CheckCheck } from 'lucide-react';
 import Link from 'next/link';
 import { calculateConsistency } from '@/lib/typing/calculateConsistency';
 
@@ -190,6 +190,39 @@ export default function Home() {
           </h1>
         </div>
         <div className="flex items-center gap-3">
+          {/* Mobile-only session controls — hidden on desktop */}
+          {status !== 'idle' && (
+            <div className="flex items-center gap-1.5 sm:hidden">
+              <button
+                onClick={handleRestart}
+                title="Restart"
+                className="flex items-center gap-1.5 px-3 h-8 rounded-lg border transition-all duration-150 active:scale-95 font-sans text-xs tracking-wide"
+                style={{
+                  background:   'var(--ape-bg-card)',
+                  borderColor:  'var(--ape-border-kbd)',
+                  color:        'var(--ape-text-muted)',
+                }}
+              >
+                <RotateCcw size={12} strokeWidth={2.5} />
+                <span>Restart</span>
+              </button>
+              {status === 'typing' && (
+                <button
+                  onClick={handleFinish}
+                  title="Finish session"
+                  className="flex items-center gap-1.5 px-3 h-8 rounded-lg border transition-all duration-150 active:scale-95 font-sans text-xs tracking-wide"
+                  style={{
+                    background:  'rgba(168,85,247,0.12)',
+                    borderColor: 'rgba(168,85,247,0.35)',
+                    color:       '#a855f7',
+                  }}
+                >
+                  <CheckCheck size={12} strokeWidth={2.5} />
+                  <span>Done</span>
+                </button>
+              )}
+            </div>
+          )}
           <ThemeToggle />
           <Link
             href="/dashboard"
@@ -261,7 +294,7 @@ export default function Home() {
                   <span className="relative z-10 flex items-center space-x-3">
                     <span>Restart Test</span>
                     <span
-                      className="opacity-60 text-[10px] px-2 py-0.5 rounded border transition-colors"
+                      className="hidden sm:inline opacity-60 text-[10px] px-2 py-0.5 rounded border transition-colors"
                       style={{ background: 'var(--ape-bg-pill)', borderColor: 'var(--ape-border-kbd)' }}
                     >
                       TAB
@@ -283,7 +316,7 @@ export default function Home() {
                   <span className="relative z-10 flex items-center space-x-3">
                     <span>View Notes</span>
                     <span
-                      className="opacity-60 text-[10px] px-2 py-0.5 rounded border transition-colors"
+                      className="hidden sm:inline opacity-60 text-[10px] px-2 py-0.5 rounded border transition-colors"
                       style={{ background: 'var(--ape-bg-pill)', borderColor: 'var(--ape-border-kbd)' }}
                     >
                       Shift+Tab
@@ -328,7 +361,7 @@ export default function Home() {
             </div>
 
             {/* Keyboard hints */}
-            <div className={`mt-24 pb-12 font-sans text-sm transition-opacity duration-500 z-10 flex flex-wrap gap-y-4 items-center ${status === 'typing' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} style={{ color: 'var(--ape-text-muted)' }}>
+            <div className={`mt-24 pb-12 font-sans text-sm transition-opacity duration-500 z-10 hidden sm:flex flex-wrap gap-y-4 items-center ${status === 'typing' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} style={{ color: 'var(--ape-text-muted)' }}>
               {[
                 { keys: ['Shift', '+', 'Enter'], label: 'to finish session' },
                 { keys: ['Tab'],                 label: 'to restart' },
@@ -361,7 +394,7 @@ export default function Home() {
       </section>
 
       {/* Persistent footer */}
-      <footer className="w-full max-w-[1000px] mt-auto pt-16 pb-8 flex flex-wrap justify-center gap-x-8 gap-y-3 font-sans text-xs" style={{ color: 'var(--ape-text-muted)' }}>
+      <footer className="w-full max-w-[1000px] mt-auto pt-16 pb-8 hidden sm:flex flex-wrap justify-center gap-x-8 gap-y-3 font-sans text-xs" style={{ color: 'var(--ape-text-muted)' }}>
         {[
           theme === 'dark'
             ? { keys: ['ctrl', 'l'], label: 'light mode' }
