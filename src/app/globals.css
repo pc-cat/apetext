@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+/* ── Theme tokens ──────────────────────────────────────────── */
+:root {
+  /* Default: dark */
+  --ape-bg:          #323437;
+  --ape-bg-card:     rgba(39, 42, 45, 0.6);
+  --ape-bg-kbd:      rgba(39, 42, 45, 0.8);
+  --ape-bg-chart:    rgba(28, 30, 32, 0.4);
+  --ape-bg-pill:     rgba(10, 10, 12, 0.8);
+
+  --ape-text:        #d1d0c5;
+  --ape-text-muted:  #9a9a9a;
+  --ape-text-purple: #a855f7;
+  --ape-text-violet: #d8b4fe;
+
+  --ape-border:      rgba(63, 63, 70, 0.5);
+  --ape-border-kbd:  rgba(63, 63, 70, 0.8);
+  --ape-border-div:  rgba(63, 63, 70, 0.4);
+
+  --ape-selection-bg:   #a855f7;
+  --ape-selection-text: #323437;
+
+  /* Header: full contrast at rest, dims on hover */
+  --ape-header-opacity:       1;
+  --ape-header-hover-opacity: 0.65;
+}
+
+[data-theme="light"] {
+  --ape-bg:          #f2f0eb;
+  --ape-bg-card:     rgba(255, 255, 255, 0.65);
+  --ape-bg-kbd:      rgba(255, 255, 255, 0.85);
+  --ape-bg-chart:    rgba(255, 255, 255, 0.5);
+  --ape-bg-pill:     rgba(220, 218, 210, 0.85);
+
+  --ape-text:        #111111;
+  --ape-text-muted:  #444444;
+  --ape-text-purple: #6d28d9;
+  --ape-text-violet: #4c1d95;
+
+  --ape-border:      rgba(0, 0, 0, 0.12);
+  --ape-border-kbd:  rgba(0, 0, 0, 0.18);
+  --ape-border-div:  rgba(0, 0, 0, 0.09);
+
+  --ape-selection-bg:   #6d28d9;
+  --ape-selection-text: #f2f0eb;
+
+  /* Header is full contrast at rest in light mode, dims on hover */
+  --ape-header-opacity:       1;
+  --ape-header-hover-opacity: 0.65;
+}
+
+/* ── Base ──────────────────────────────────────────────────── */
+body {
+  background-color: var(--ape-bg);
+  color: var(--ape-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+::selection {
+  background-color: var(--ape-selection-bg);
+  color: var(--ape-selection-text);
+}
+
+/* ── Animations ────────────────────────────────────────────── */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.35s ease forwards;
+}
+
+/* Header: fades in on hover (dark) / dims on hover (light) */
+.ape-header {
+  opacity: var(--ape-header-opacity);
+  transition: opacity 0.2s ease;
+}
+.ape-header:hover {
+  opacity: var(--ape-header-hover-opacity);
+}
