@@ -141,7 +141,11 @@ export default function Home() {
 
     const wpm         = minutes > 0 ? Math.round((chars / 5) / minutes) : 0;
     const raw         = minutes > 0 ? Math.round((totalKeys / 5) / minutes) : 0;
-    const accuracy    = totalKeys === 0 ? 100 : Math.round(((totalKeys - Math.min(errorKeys, totalKeys)) / totalKeys) * 100);
+    const accuracy    = totalKeys > 0
+      // Desktop: count every keystroke vs backspaces
+      ? Math.round(((totalKeys - Math.min(errorKeys, totalKeys)) / totalKeys) * 100)
+      // Mobile fallback: totalKeys unavailable, use chars typed vs chars deleted
+      : (chars + errorKeys === 0 ? 100 : Math.round((chars / (chars + errorKeys)) * 100));
     const consistency = calculateConsistency(wpmHistoryRef.current);
 
     setFinalStats({ wpm, raw, accuracy, consistency, chars, time: elapsed });
