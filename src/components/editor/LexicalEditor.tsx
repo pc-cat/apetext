@@ -163,7 +163,14 @@ export default function LexicalEditor({
               spellCheck={false}
             />
           }
-          placeholder={<div className="hidden" />}
+          placeholder={
+            <div
+              className="pointer-events-none absolute top-0 left-0 font-mono select-none"
+              style={{ color: 'var(--ape-text-muted)' }}
+            >
+              Just start typing your thoughts…
+            </div>
+          }
           ErrorBoundary={LexicalErrorBoundary}
         />
         <OnChangePlugin onChange={handleChange} ignoreSelectionChange />
