@@ -84,10 +84,16 @@ function MetricsTrackerPlugin({
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
+    // ── Desktop path (unchanged) ─────────────────────────────────────────────
+    // A flag that keydown sets so the mobile `input` fallback can skip events
+    // that were already handled by the physical-keyboard path.
+    let handledByKeydown = false;
+
     // Count every backspace as an error
     const removeBackspaceCmd = editor.registerCommand(
       KEY_BACKSPACE_COMMAND,
       () => {
+        handledByKeydown = true; // tell the input listener to skip this delete
         onMetricsChange('error');
         return false; // let Lexical handle the deletion
       },
@@ -104,20 +110,52 @@ function MetricsTrackerPlugin({
       COMMAND_PRIORITY_HIGH
     );
 
-    // Count every printable keystroke
+    // Count every printable keystroke (physical keyboard only)
     const onKeyDown = (e: KeyboardEvent) => {
       if (document.activeElement?.getAttribute('contenteditable') !== 'true') return;
       if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        handledByKeydown = true;
         onMetricsChange('char');
       }
     };
 
     window.addEventListener('keydown', onKeyDown);
 
+    // ── Mobile fallback ───────────────────────────────────────────────────────
+    // Virtual keyboards (Android / iOS) don't fire keydown with a usable e.key.
+    // The `input` event fires reliably after every insertion or deletion and
+    // exposes an `inputType` string we can use to classify the action.
+    // We skip this path entirely when `handledByKeydown` is true so desktop
+    // behaviour is completely unaffected.
+    const onInput = (e: Event) => {
+      if (document.activeElement?.getAttribute('contenteditable') !== 'true') return;
+
+      // Reset the flag first so it's ready for the next event
+      const wasHandled = handledByKeydown;
+      handledByKeydown = false;
+
+      if (wasHandled) return; // desktop already counted this keystroke
+
+      const ie = e as InputEvent;
+      if (!ie.inputType) return;
+
+      if (ie.inputType.startsWith('insert')) {
+        // e.g. insertText, insertCompositionText, insertReplacementText
+        const added = ie.data?.length ?? 1;
+        for (let i = 0; i < added; i++) onMetricsChange('char');
+      } else if (ie.inputType.startsWith('delete')) {
+        // e.g. deleteContentBackward, deleteWordBackward
+        onMetricsChange('error');
+      }
+    };
+
+    window.addEventListener('input', onInput);
+
     return () => {
       removeBackspaceCmd();
       removePasteCmd();
       window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('input', onInput);
     };
   }, [editor, onMetricsChange]);
 
