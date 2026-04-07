@@ -267,10 +267,10 @@ export default function Home() {
                   {[
                     { label: 'raw',         value: String(finalStats.raw) },
                     { label: 'chars',       value: String(finalStats.chars) },
-                    { label: 'consistency', value: `${finalStats.consistency}%` },
+                    { label: 'consistency', value: `${finalStats.consistency}%`, mobileHidden: true },
                     { label: 'time',        value: `${finalStats.time}s` },
-                  ].map(({ label, value }) => (
-                    <div key={label} className="flex flex-col justify-end shrink-0">
+                  ].map(({ label, value, mobileHidden }) => (
+                    <div key={label} className={`${mobileHidden ? 'hidden sm:flex' : 'flex'} flex-col justify-end shrink-0`}>
                       <span className="text-xs mb-1 font-sans tracking-widest uppercase" style={{ color: 'var(--ape-text-muted)' }}>{label}</span>
                       <span className="text-4xl leading-none font-bold" style={{ color: 'var(--ape-text-violet)' }}>{value}</span>
                     </div>
@@ -283,7 +283,7 @@ export default function Home() {
                 {/* Restart */}
                 <button
                   onClick={handleRestart}
-                  className="group relative px-10 py-3 backdrop-blur-sm transition-all duration-300 rounded-xl overflow-hidden font-sans uppercase tracking-widest text-xs font-semibold shadow-xl hover:-translate-y-1"
+                  className="group relative px-10 py-3 backdrop-blur-sm transition-all duration-300 rounded-xl overflow-hidden font-sans uppercase tracking-widest text-xs font-semibold shadow-xl hover:-translate-y-1 flex items-center justify-center"
                   style={{
                     background: 'var(--ape-bg-card)',
                     color: 'var(--ape-text)',
@@ -305,7 +305,7 @@ export default function Home() {
                 {/* View Notes */}
                 <Link
                   href="/dashboard"
-                  className="group relative px-10 py-3 backdrop-blur-sm transition-all duration-300 rounded-xl overflow-hidden font-sans uppercase tracking-widest text-xs font-semibold shadow-xl hover:-translate-y-1 flex items-center"
+                  className="group relative px-10 py-3 backdrop-blur-sm transition-all duration-300 rounded-xl overflow-hidden font-sans uppercase tracking-widest text-xs font-semibold shadow-xl hover:-translate-y-1 flex items-center justify-center"
                   style={{
                     background: 'var(--ape-bg-card)',
                     color: 'var(--ape-text)',
