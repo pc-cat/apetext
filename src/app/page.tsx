@@ -223,7 +223,6 @@ export default function Home() {
               )}
             </div>
           )}
-          <ThemeToggle />
           <Link
             href="/dashboard"
             className="py-2 px-4 font-sans tracking-widest uppercase text-xs font-semibold rounded-xl border transition-all duration-200"
@@ -236,6 +235,7 @@ export default function Home() {
             <span className="sm:hidden">Notes</span>
             <span className="hidden sm:inline">My Notes</span>
           </Link>
+          <ThemeToggle />
         </div>
       </header>
 
