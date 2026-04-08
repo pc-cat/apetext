@@ -46,6 +46,8 @@ export default function Home() {
   const prevTotalKeysRef  = useRef(0);
   const elapsedSecondsRef = useRef(0);
   const wpmHistoryRef     = useRef<number[]>([]);
+  const startTimeRef      = useRef<number | null>(null);
+  const lastTickTimeRef   = useRef<number | null>(null);
   // AbortController for the fire-and-forget POST; cancelled if user navigates
   // away before the response completes, preventing a request leak.
   const fetchAbortRef     = useRef<AbortController | null>(null);
@@ -70,6 +72,8 @@ export default function Home() {
     prevTotalKeysRef.current  = 0;
     elapsedSecondsRef.current = 0;
     wpmHistoryRef.current     = [];
+    startTimeRef.current      = null;
+    lastTickTimeRef.current   = null;
     setResetKey(prev => prev + 1);
   }, []);
 
@@ -89,8 +93,8 @@ export default function Home() {
     typedTextRef.current = text;
     setStatus(current => {
       if (current === 'idle' && text.trim().length > 0) {
-        elapsedSecondsRef.current = 1;
-        setElapsedSeconds(1);
+        startTimeRef.current = performance.now();
+        lastTickTimeRef.current = startTimeRef.current;
         return 'typing';
       }
       return current;
@@ -106,17 +110,26 @@ export default function Home() {
     if (status !== 'typing') return;
 
     timerRef.current = setInterval(() => {
-      const newTime  = elapsedSecondsRef.current + 1;
+      if (!startTimeRef.current || !lastTickTimeRef.current) return;
+
+      const now = performance.now();
+      const newTime = elapsedSecondsRef.current + 1;
       elapsedSecondsRef.current = newTime;
-      const minutes  = newTime / 60;
+      
+      const totalElapsedMinutes = (now - startTimeRef.current) / 60000;
+      const msSinceLastTick = now - lastTickTimeRef.current;
+      const tickMinutes = msSinceLastTick / 60000;
+
       const chars    = typedTextRef.current.length;
       const total    = totalKeysRef.current;
 
-      const rawWpm   = minutes > 0 ? Math.round((total / 5) / minutes) : 0;
-      const netWpm   = minutes > 0 ? Math.round((chars / 5) / minutes) : 0;
+      const rawWpm   = Math.round((total / 5) / totalElapsedMinutes);
+      const netWpm   = Math.round((chars / 5) / totalElapsedMinutes);
       const keysNow  = total - prevTotalKeysRef.current;
-      const instWpm  = Math.round((keysNow / 5) * 60);
+      const instWpm  = Math.max(0, Math.round((keysNow / 5) / tickMinutes));
+      
       prevTotalKeysRef.current = total;
+      lastTickTimeRef.current = now;
 
       wpmHistoryRef.current.push(instWpm);
 
@@ -137,10 +150,12 @@ export default function Home() {
     const errorKeys = errorKeysRef.current;
     const chars     = typedTextRef.current.length;
     const elapsed   = elapsedSecondsRef.current;
-    const minutes   = elapsed / 60;
+    const actualMinutes = startTimeRef.current 
+      ? (performance.now() - startTimeRef.current) / 60000 
+      : elapsed / 60;
 
-    const wpm         = minutes > 0 ? Math.round((chars / 5) / minutes) : 0;
-    const raw         = minutes > 0 ? Math.round((totalKeys / 5) / minutes) : 0;
+    const wpm         = actualMinutes > 0 ? Math.round((chars / 5) / actualMinutes) : 0;
+    const raw         = actualMinutes > 0 ? Math.round((totalKeys / 5) / actualMinutes) : 0;
     const accuracy    = totalKeys > 0
       // Desktop: count every keystroke vs backspaces
       ? Math.round(((totalKeys - Math.min(errorKeys, totalKeys)) / totalKeys) * 100)
@@ -170,13 +185,8 @@ export default function Home() {
     });
   }, []);
 
-  // Derived live WPM — memoised so it only recalculates when elapsed changes
-  const liveWpm = useMemo(
-    () => elapsedSeconds > 0
-      ? Math.round((typedTextRef.current.length / 5) / (elapsedSeconds / 60))
-      : 0,
-    [elapsedSeconds],
-  );
+  // Derived live WPM — syncs perfectly with the latest history point for mathematical consistency
+  const liveWpm = history.length > 0 ? history[history.length - 1].wpm : 0;
 
   if (!isClient) return null;
 
