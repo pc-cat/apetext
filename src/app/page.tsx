@@ -146,16 +146,24 @@ export default function Home() {
   const handleFinish = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
 
+    const elapsed   = elapsedSecondsRef.current;
+    const actualMs  = startTimeRef.current ? performance.now() - startTimeRef.current : 0;
+
+    // Session under 1 second — stats are meaningless, show NaN
+    if (actualMs < 1000) {
+      const timeInSeconds = +(actualMs / 1000).toFixed(1);
+      setFinalStats({ wpm: NaN, raw: NaN, accuracy: NaN, consistency: NaN, chars: NaN, time: timeInSeconds });
+      setStatus('finished');
+      return;
+    }
+
     const totalKeys = totalKeysRef.current;
     const errorKeys = errorKeysRef.current;
     const chars     = typedTextRef.current.length;
-    const elapsed   = elapsedSecondsRef.current;
-    const actualMinutes = startTimeRef.current 
-      ? (performance.now() - startTimeRef.current) / 60000 
-      : elapsed / 60;
+    const actualMinutes = actualMs / 60000;
 
-    const wpm         = actualMinutes > 0 ? Math.round((chars / 5) / actualMinutes) : 0;
-    const raw         = actualMinutes > 0 ? Math.round((totalKeys / 5) / actualMinutes) : 0;
+    const wpm         = Math.round((chars / 5) / actualMinutes);
+    const raw         = Math.round((totalKeys / 5) / actualMinutes);
     const accuracy    = totalKeys > 0
       // Desktop: count every keystroke vs backspaces
       ? Math.round(((totalKeys - Math.min(errorKeys, totalKeys)) / totalKeys) * 100)
@@ -266,11 +274,11 @@ export default function Home() {
                 <div className="flex justify-center space-x-12 sm:space-x-16 z-10 shrink-0">
                   <div className="flex flex-col">
                     <span className="text-2xl mb-1 font-sans tracking-widest uppercase" style={{ color: 'var(--ape-text-muted)' }}>wpm</span>
-                    <span className="text-7xl leading-none font-black" style={{ color: 'var(--ape-text-purple)' }}>{finalStats.wpm}</span>
+                    <span className="text-7xl leading-none font-black" style={{ color: 'var(--ape-text-purple)' }}>{isNaN(finalStats.wpm) ? '💀' : String(finalStats.wpm)}</span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-2xl mb-1 font-sans tracking-widest uppercase" style={{ color: 'var(--ape-text-muted)' }}>acc</span>
-                    <span className="text-7xl leading-none font-black" style={{ color: 'var(--ape-text-purple)' }}>{finalStats.accuracy}%</span>
+                    <span className="text-7xl leading-none font-black" style={{ color: 'var(--ape-text-purple)' }}>{isNaN(finalStats.accuracy) ? '💀' : `${finalStats.accuracy}%`}</span>
                   </div>
                 </div>
 
@@ -280,9 +288,9 @@ export default function Home() {
                   style={{ borderColor: 'var(--ape-border)' }}
                 >
                   {[
-                    { label: 'raw',         value: String(finalStats.raw),  mobileHidden: true },
-                    { label: 'chars',       value: String(finalStats.chars) },
-                    { label: 'consistency', value: `${finalStats.consistency}%`, mobileHidden: true },
+                    { label: 'raw',         value: isNaN(finalStats.raw) ? '💀' : String(finalStats.raw),  mobileHidden: true },
+                    { label: 'chars',       value: isNaN(finalStats.chars) ? '💀' : String(finalStats.chars) },
+                    { label: 'consistency', value: isNaN(finalStats.consistency) ? '💀' : `${finalStats.consistency}%`, mobileHidden: true },
                     { label: 'time',        value: `${finalStats.time}s` },
                   ].map(({ label, value, mobileHidden }) => (
                     <div key={label} className={`${mobileHidden ? 'hidden sm:flex' : 'flex'} flex-col justify-end shrink-0`}>
