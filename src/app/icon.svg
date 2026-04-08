@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" fill="none" stroke="url(#ape-gradient)" stroke-width="6">
+  <defs>
+    <linearGradient id="ape-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#d8b4fe" />
+    </linearGradient>
+  </defs>
+
+  <!-- Cybernetic Ape Silhouette Base -->
+  <path 
+    d="M25 45 C 25 15, 75 15, 75 45 L 85 65 L 75 85 L 50 95 L 25 85 L 15 65 Z" 
+    fill="url(#ape-gradient)" 
+    fill-opacity="0.15" 
+    stroke-linejoin="round"
+  />
+  
+  <!-- Aggressive Brow Ridge -->
+  <path d="M 24 49 Q 50 59 76 49" stroke-linecap="round" />
+  
+  <!-- Digital Eye Slits -->
+  <path d="M 35 62 L 44 60" stroke-linecap="round" stroke-width="5" />
+  <path d="M 65 62 L 56 60" stroke-linecap="round" stroke-width="5" />
+
+  <!-- Geometric Snout Area -->
+  <path d="M 40 72 L 60 72 L 55 82 L 45 82 Z" stroke-linejoin="round" />
+  
+  <!-- Lower Jaw Line detail -->
+  <path d="M 48 88 L 52 88" stroke-linecap="round" stroke-width="4" />
+</svg>
