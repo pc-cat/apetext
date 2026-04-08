@@ -9,6 +9,106 @@ import { Clock, RotateCcw, CheckCheck } from 'lucide-react';
 import Link from 'next/link';
 import { calculateConsistency } from '@/lib/typing/calculateConsistency';
 
+// Keyboard rows used for mashing detection (case-insensitive)
+const KB_ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
+const CONSONANTS = 'bcdfghjklmnpqrstvwxyz';
+
+/**
+ * Analyses the final typed text and returns an extra error penalty count.
+ * Penalties are applied for:
+ * 1. Extra consecutive spaces (beyond the first).
+ * 2. Words longer than 45 characters.
+ * 3. Four or more identical consecutive characters (e.g. "gggg").
+ * 4. Keyboard row mashing: 5+ chars all from the same keyboard row (e.g. "asdfg").
+ * 5. Excessive punctuation runs: 4+ punctuation chars in a row (e.g. "....").
+ * 6. Five or more consecutive consonants with no vowel (e.g. "xkqrtsw").
+ * 7. Strict alternating two-char pattern of 6+ length (e.g. "ababab").
+ */
+function computeContentPenalties(text: string): number {
+  let penalties = 0;
+  const lower = text.toLowerCase();
+
+  // 1. Extra consecutive spaces
+  for (const match of text.matchAll(/ {2,}/g)) {
+    penalties += match[0].length - 1;
+  }
+
+  // 2. Words longer than 45 characters
+  const words = text.split(/\s+/).filter(Boolean);
+  for (const word of words) {
+    if (word.length > 45) penalties += word.length;
+  }
+
+  // 3. Four or more identical consecutive characters
+  for (const match of lower.matchAll(/(.)\1{3,}/g)) {
+    penalties += match[0].length;
+  }
+
+  // 4. Keyboard row mashing: 5+ chars all on the same row
+  for (const row of KB_ROWS) {
+    const rowSet = new Set(row);
+    let run = 0;
+    for (const ch of lower) {
+      if (rowSet.has(ch)) {
+        run++;
+        if (run >= 5) penalties += 1;
+      } else {
+        run = 0;
+      }
+    }
+  }
+
+  // 5. Excessive punctuation runs (4+ in a row)
+  const punctRe = /[^\w\s]{4,}/g;
+  for (const match of text.matchAll(punctRe)) {
+    penalties += match[0].length;
+  }
+
+  // 6. Five or more consecutive consonants (no vowel break)
+  const consonantRe = new RegExp('[' + CONSONANTS + ']{5,}', 'g');
+  for (const match of lower.matchAll(consonantRe)) {
+    penalties += match[0].length;
+  }
+
+  // 7. Strict alternating two-char pattern of 6+ chars (e.g. "ababab")
+  const altRe = /(.)((?!\1).)\1\2\1\2(?:\1\2)*/g;
+  for (const match of lower.matchAll(altRe)) {
+    penalties += match[0].length;
+  }
+
+  return penalties;
+}
+
+/**
+ * Counts the total number of distinct spam pattern incidents to determine if
+ * the user is intentionally mashing keys.
+ */
+function countSpamIncidents(text: string): number {
+  let incidents = 0;
+  const lower = text.toLowerCase();
+
+  incidents += [...lower.matchAll(/(.)\1{3,}/g)].length;
+
+  for (const row of KB_ROWS) {
+    const rowSet = new Set(row);
+    let run = 0;
+    for (const ch of lower) {
+      if (rowSet.has(ch)) {
+        run++;
+        if (run === 5) incidents += 1;
+      } else {
+        run = 0;
+      }
+    }
+  }
+
+  incidents += [...text.matchAll(/[^\w\s]{4,}/g)].length;
+  incidents += [...lower.matchAll(new RegExp('[' + CONSONANTS + ']{5,}', 'g'))].length;
+  incidents += [...lower.matchAll(/(.)((?!\1).)\1\2\1\2(?:\1\2)*/g)].length;
+
+  return incidents;
+}
+
 export type ChartDataPoint = {
   time: number;
   wpm: number;
@@ -133,10 +233,12 @@ export default function Home() {
 
       wpmHistoryRef.current.push(instWpm);
 
+      const contentErrs = computeContentPenalties(typedTextRef.current);
+
       setElapsedSeconds(newTime);
       setHistory(prev => [
         ...prev,
-        { time: newTime, wpm: netWpm, raw: rawWpm, errors: errorKeysRef.current, instWpm },
+        { time: newTime, wpm: netWpm, raw: rawWpm, errors: errorKeysRef.current + contentErrs, instWpm },
       ]);
     }, 1000);
 
@@ -149,8 +251,9 @@ export default function Home() {
     const elapsed   = elapsedSecondsRef.current;
     const actualMs  = startTimeRef.current ? performance.now() - startTimeRef.current : 0;
 
-    // Session under 1 second — stats are meaningless, show NaN
-    if (actualMs < 1000) {
+    // Session under 1 second or user caught spamming >3 times
+    const spamCount = countSpamIncidents(typedTextRef.current);
+    if (actualMs < 1000 || spamCount > 3) {
       const timeInSeconds = +(actualMs / 1000).toFixed(1);
       setFinalStats({ wpm: NaN, raw: NaN, accuracy: NaN, consistency: NaN, chars: NaN, time: timeInSeconds });
       setStatus('finished');
@@ -162,13 +265,19 @@ export default function Home() {
     const chars     = typedTextRef.current.length;
     const actualMinutes = actualMs / 60000;
 
-    const wpm         = Math.round((chars / 5) / actualMinutes);
     const raw         = Math.round((totalKeys / 5) / actualMinutes);
+    const grossWpm    = Math.round((chars / 5) / actualMinutes);
+    const contentPenalties = computeContentPenalties(typedTextRef.current);
+    const adjustedErrors    = Math.min(errorKeys + contentPenalties, totalKeys);
+
     const accuracy    = totalKeys > 0
-      // Desktop: count every keystroke vs backspaces
-      ? Math.round(((totalKeys - Math.min(errorKeys, totalKeys)) / totalKeys) * 100)
-      // Mobile fallback: totalKeys unavailable, use chars typed vs chars deleted
-      : (chars + errorKeys === 0 ? 100 : Math.round((chars / (chars + errorKeys)) * 100));
+      // Desktop: keystrokes + content penalties vs total keystrokes
+      ? Math.round(((totalKeys - adjustedErrors) / totalKeys) * 100)
+      // Mobile fallback
+      : (chars + adjustedErrors === 0 ? 100 : Math.round((chars / (chars + adjustedErrors)) * 100));
+
+    // Net WPM is penalised by accuracy — fast but sloppy typing scores lower
+    const wpm         = Math.round(grossWpm * (Math.max(0, accuracy) / 100));
     const consistency = calculateConsistency(wpmHistoryRef.current);
 
     setFinalStats({ wpm, raw, accuracy, consistency, chars, time: elapsed });
