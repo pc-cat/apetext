@@ -307,7 +307,7 @@ export default function Home() {
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-[#a855f7]/20 to-blue-600/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
                   <span className="relative z-10 flex items-center space-x-3">
-                    <span>Restart Test</span>
+                    <span>Restart</span>
                     <span
                       className="hidden sm:inline opacity-60 text-[10px] px-2 py-0.5 rounded border transition-colors"
                       style={{ background: 'var(--ape-bg-pill)', borderColor: 'var(--ape-border-kbd)' }}
