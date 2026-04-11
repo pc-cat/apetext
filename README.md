@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🦍 ApeText.io
 
-## Getting Started
+> **In an age where AI writes for us, writing for ourselves becomes an act of rebellion—and a tool for thinking.**
 
-First, run the development server:
+ApeText is a performance-driven **notes app** and typing analytics platform designed to gamify the act of writing. In a world where generative AI can produce paragraphs in seconds, the skill of manual composition is often sidelined. ApeText seeks to restore the value of "writing as thinking" by providing a focused, beautiful, and interactive environment to capture your notes while honing your speed, accuracy, and compositional discipline.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 The Story
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+We live in the "Day and Age of AI." Writing is increasingly outsourced to models, yet writing remains the most effective tool for structured thought. When you write, you aren't just communicating ideas; you are *forming* them.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+ApeText gamifies this process. By tracking every keystroke, penalizing "keyboard mashing," and providing real-time visual feedback, we turn writing into a performance. It's not just about how fast you type—it's about how clearly and consistently you can manifest your thoughts.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠️ The Tech Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+ApeText is built with a modern, high-performance stack to ensure a lag-free, premium experience:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+-   **Framework**: [Next.js](https://nextjs.org/) (App Router)
+-   **Language**: [TypeScript](https://www.typescriptlang.org/)
+-   **Editor Engine**: [Lexical](https://lexical.dev/) — Meta's extensible text editor framework.
+-   **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) & Native CSS Variables for a robust, persistent theming system.
+-   **Analytics**: [Chart.js](https://www.chartjs.org/) + [react-chartjs-2](https://react-chartjs-2.js.org/) for interactive performance visualization.
+-   **Authentication**: [Passport.js](https://www.passportjs.org/) for secure session management.
+-   **Icons**: [Lucide React](https://lucide.dev/)
+-   **Optimization**: [React Compiler](https://react.dev/learn/react-compiler) for high-performance renders.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## ✨ Features
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+-   **Deep Analytics**: Real-time WPM (Words Per Minute), Accuracy, Consistency, and Raw Speed tracking.
+-   **Mashing Detection**: Advanced algorithms detect and penalize keyboard mashing, excessive punctuation runs, and non-linguistic character patterns (consonant runs, repetitive alternating patterns).
+-   **Interactive Charts**: Beautiful visualizations of your typing performance over time, including instantaneous WPM spikes and error markers.
+-   **Persistent Themes**: Premium dark and light modes that sync with your system or preference.
+-   **Keyboard First**: Designed for speed. Use `Tab` to restart, `Shift + Enter` to finish, and `Ctrl + M` to toggle themes without leaving the home row.
+-   **Your Digital Notes**: A dashboard representing your session history, allowing you to manage your notes, track your progress, and revisit your "thought-bursts." Every typing session ends in a saved note.
+
+---
+
+## 🚦 Getting Started
+
+### Prerequisites
+
+-   Node.js 18+
+-   npm or yarn
+
+### Installation
+
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/yourusername/apetext.git
+    cd apetext
+    ```
+
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+
+3.  Run the development server:
+    ```bash
+    npm run dev
+    ```
+
+4.  Open [http://localhost:3000](http://localhost:3000) and start writing.
+
+---
+
+## 🦍 Stay Ape. Stay Focused.
+
+ApeText is more than a typing test. It's a sanctuary for those who still believe in the power of the human-to-keyboard connection. 
+
+---
+*Created with focus and precision.*
